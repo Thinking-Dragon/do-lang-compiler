@@ -23,8 +23,8 @@ pub enum Token {
     ModSign,
     Dot,
     Comma,
+    CreateInstructionKeyword,
     Symbol(String),
-    Integer(i64),
 }
 
 impl Token {
@@ -53,8 +53,8 @@ impl Token {
             Token::ModSign                    => "%".to_string(),
             Token::Dot                        => ".".to_string(),
             Token::Comma                      => ",".to_string(),
+            Token::CreateInstructionKeyword   => "create".to_string(),
             Token::Symbol(value)     => value.clone(),
-            Token::Integer(value) => value.to_string(),
         }
     }
 
@@ -83,6 +83,7 @@ impl Token {
             Token::ModSign,
             Token::Dot,
             Token::Comma,
+            Token::CreateInstructionKeyword,
         ].to_vec()
     }
 }

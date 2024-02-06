@@ -30,9 +30,7 @@ pub fn tokenize(source_code: String) -> Vec<Token> {
             }
         }
 
-        let mut added_dynamic_token = false;
-
-        if current_character.is_alphabetic() {
+        if current_character.is_alphanumeric() {
             let mut symbol_name = "".to_string();
             while current_character.is_alphanumeric() {
                 symbol_name.push(current_character);
@@ -40,21 +38,8 @@ pub fn tokenize(source_code: String) -> Vec<Token> {
                 current_character = source_code.chars().nth(cursor).unwrap();
             }
             tokens.push(Token::Symbol(symbol_name));
-            added_dynamic_token = true;
         }
-
-        if current_character.is_digit(10) {
-            let mut number_value = "".to_string();
-            while current_character.is_digit(10) {
-                number_value.push(current_character);
-                cursor += 1;
-                current_character = source_code.chars().nth(cursor).unwrap();
-            }
-            tokens.push(Token::Integer(number_value.parse::<i64>().unwrap()));
-            added_dynamic_token = true;
-        }
-
-        if !added_dynamic_token {
+        else {
             cursor += 1;
         }
     }
