@@ -1,6 +1,19 @@
 use crate::token::Token;
 
-pub fn tokenize(source_code: String) -> Vec<Token> {
+pub fn tokenize(source_code_raw: String) -> Vec<Token> {
+    let source_code = &source_code_raw
+        .lines()
+        .map(
+            |line|
+            line.split("//").next().unwrap_or("").trim()
+        )
+        .collect::<Vec<&str>>()
+        .join(" ")
+        .trim()
+        .to_string();
+
+    println!("Source code without comments:\n{}", source_code);
+
     let mut tokens = Vec::new();
 
     let mut cursor = 0;
