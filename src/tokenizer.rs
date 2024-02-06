@@ -12,8 +12,6 @@ pub fn tokenize(source_code_raw: String) -> Vec<Token> {
         .trim()
         .to_string();
 
-    println!("Source code without comments:\n{}", source_code);
-
     let mut tokens = Vec::new();
 
     let mut cursor = 0;
