@@ -16,4 +16,7 @@ fn main() {
     
     let tokens = tokenize(source_code);
     println!("Tokens:\n{:#?}", tokens);
+
+    let ast = parse_ast(tokens);
+    println!("Abstract syntax tree:\n{:#?}", ast);
 }
