@@ -10,6 +10,7 @@ pub enum ASTNode {
     FieldValue(String, String),
     Value(String),
     Expression(Box<ASTNode>),
+    Declaration(String, Box<ASTNode>),
     DataInstanciation(String, Vec<Box<ASTNode>>),
     CreateInstruction(String, Vec<Box<ASTNode>>),
     If(Box<ASTNode>, Vec<Box<ASTNode>>),
@@ -59,6 +60,10 @@ impl ASTNode {
 
     pub fn new_expression(value: ASTNode) -> ASTNode {
         ASTNode::Expression(Box::new(value))
+    }
+
+    pub fn new_declaration(variable_name: String, value: ASTNode) -> ASTNode {
+        ASTNode::Declaration(variable_name, Box::new(value))
     }
 
     pub fn new_data_instanciation(data_name: String, field_values: Vec<ASTNode>) -> ASTNode {

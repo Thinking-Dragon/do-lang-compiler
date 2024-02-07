@@ -25,6 +25,7 @@ pub enum Token {
     Dot,
     Comma,
     CreateInstructionKeyword,
+    Let,
     If,
     For,
     Symbol(String),
@@ -58,6 +59,7 @@ impl Token {
             Token::Dot                        => ".".to_string(),
             Token::Comma                      => ",".to_string(),
             Token::CreateInstructionKeyword   => "create".to_string(),
+            Token::Let                        => "let".to_string(),
             Token::If                         => "if".to_string(),
             Token::For                        => "for".to_string(),
             Token::Symbol(value)     => value.clone(),
@@ -91,6 +93,7 @@ impl Token {
             Token::Dot,
             Token::Comma,
             Token::CreateInstructionKeyword,
+            Token::Let,
             Token::If,
             Token::For,
         ].to_vec()

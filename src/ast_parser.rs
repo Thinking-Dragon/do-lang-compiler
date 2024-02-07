@@ -287,6 +287,9 @@ fn parse_instruction<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> AST
     else if token_is(iterator, Token::For) {
         return parse_for(iterator);
     }
+    else if token_is(iterator, Token::Let) {
+        return parse_declaration(iterator);
+    }
 
     panic!("Expected an instruction.");
 }
@@ -354,8 +357,23 @@ fn parse_statement<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNo
 }
 
 fn parse_declaration<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+    if token_is(iterator, Token::Let) {
+        iterator.next();
+    }
+
+    if !is_symbol(&iterator.peek()) {
+        panic!("Expected name of variable to declare.");
+    }
+    let variable_name = iterator.next().unwrap().get_value();
+
+    if !token_is(iterator, Token::Equal) {
+        panic!("Expected = before declaration value.");
+    }
     iterator.next();
-    ASTNode::new_expression(ASTNode::Value("".to_string()))
+
+    let value = parse_expression(iterator);
+
+    ASTNode::new_declaration(variable_name, value)
 }
 
 fn parse_if<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
