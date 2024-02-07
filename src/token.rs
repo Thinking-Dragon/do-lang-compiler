@@ -9,6 +9,7 @@ pub enum Token {
     LParenthesis,
     RParenthesis,
     Colon,
+    Semicolon,
     DoubleQuote,
     SingleQuote,
     Equal,
@@ -25,6 +26,7 @@ pub enum Token {
     Comma,
     CreateInstructionKeyword,
     If,
+    For,
     Symbol(String),
 }
 
@@ -40,6 +42,7 @@ impl Token {
             Token::LParenthesis               => "(".to_string(),
             Token::RParenthesis               => ")".to_string(),
             Token::Colon                      => ":".to_string(),
+            Token::Semicolon                  => ";".to_string(),
             Token::DoubleQuote                => "\"".to_string(),
             Token::SingleQuote                => "'".to_string(),
             Token::Equal                      => "=".to_string(),
@@ -56,6 +59,7 @@ impl Token {
             Token::Comma                      => ",".to_string(),
             Token::CreateInstructionKeyword   => "create".to_string(),
             Token::If                         => "if".to_string(),
+            Token::For                        => "for".to_string(),
             Token::Symbol(value)     => value.clone(),
         }
     }
@@ -71,6 +75,7 @@ impl Token {
             Token::LParenthesis,
             Token::RParenthesis,
             Token::Colon,
+            Token::Semicolon,
             Token::DoubleQuote,
             Token::SingleQuote,
             Token::Equal,
@@ -87,6 +92,7 @@ impl Token {
             Token::Comma,
             Token::CreateInstructionKeyword,
             Token::If,
+            Token::For,
         ].to_vec()
     }
 }

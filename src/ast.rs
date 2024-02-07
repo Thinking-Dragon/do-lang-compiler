@@ -13,6 +13,7 @@ pub enum ASTNode {
     DataInstanciation(String, Vec<Box<ASTNode>>),
     CreateInstruction(String, Vec<Box<ASTNode>>),
     If(Box<ASTNode>, Vec<Box<ASTNode>>),
+    For(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>, Vec<Box<ASTNode>>),
 }
 
 impl ASTNode {
@@ -21,7 +22,11 @@ impl ASTNode {
     }
 
     pub fn new_group(name: String, parameters: Vec<ASTNode>, data_instanciations: Vec<ASTNode>) -> ASTNode {
-        ASTNode::Group(name, parameters.into_iter().map(Box::new).collect(), data_instanciations.into_iter().map(Box::new).collect())
+        ASTNode::Group(
+            name,
+            parameters.into_iter().map(Box::new).collect(),
+            data_instanciations.into_iter().map(Box::new).collect()
+        )
     }
 
     pub fn new_do(name: String, instructions: Vec<ASTNode>) -> ASTNode {
@@ -62,6 +67,15 @@ impl ASTNode {
 
     pub fn new_if(condition: ASTNode, instructions: Vec<ASTNode>) -> ASTNode {
         ASTNode::If(Box::new(condition), instructions.into_iter().map(Box::new).collect())
+    }
+
+    pub fn new_for(declaration: ASTNode, condition: ASTNode, progression: ASTNode, instructions: Vec<ASTNode>) -> ASTNode {
+        ASTNode::For(
+            Box::new(declaration),
+            Box::new(condition),
+            Box::new(progression),
+            instructions.into_iter().map(Box::new).collect()
+        )
     }
 
     pub fn new_program(statements: Vec<ASTNode>) -> ASTNode {

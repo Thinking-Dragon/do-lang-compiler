@@ -12,13 +12,13 @@ fn parse_program<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode
     let mut statements = Vec::new();
 
     while iterator.peek().is_some() {
-        statements.push(parse_statement(iterator));
+        statements.push(parse_primitive_bloc(iterator));
     }
 
     ASTNode::new_program(statements)
 }
 
-fn parse_statement<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_primitive_bloc<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     match iterator.next() {
         Some(Token::Data)  => parse_data(iterator),
         Some(Token::Group) => parse_group(iterator),
@@ -284,6 +284,9 @@ fn parse_instruction<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> AST
     else if token_is(iterator, Token::If) {
         return parse_if(iterator);
     }
+    else if token_is(iterator, Token::For) {
+        return parse_for(iterator);
+    }
 
     panic!("Expected an instruction.");
 }
@@ -345,6 +348,16 @@ fn parse_expression<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTN
     ASTNode::new_expression(ASTNode::Value("".to_string()))
 }
 
+fn parse_statement<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+    iterator.next();
+    ASTNode::new_expression(ASTNode::Value("".to_string()))
+}
+
+fn parse_declaration<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+    iterator.next();
+    ASTNode::new_expression(ASTNode::Value("".to_string()))
+}
+
 fn parse_if<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     iterator.next();
 
@@ -366,6 +379,48 @@ fn parse_if<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     }
 
     ASTNode::new_if(condition, instructions)
+}
+
+fn parse_for<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+    iterator.next();
+
+    let declaration = parse_declaration(iterator);
+
+    if token_is(iterator, Token::Semicolon) {
+        iterator.next();
+    }
+    else {
+        panic!("Expected semicolon.");
+    }
+
+    let condition = parse_expression(iterator);
+
+    if token_is(iterator, Token::Semicolon) {
+        iterator.next();
+    }
+    else {
+        panic!("Expected semicolon.");
+    }
+
+    let progression = parse_statement(iterator);
+
+    let mut instructions: Vec<ASTNode> = Vec::new();
+
+    if !token_is(iterator, Token::LBrace) {
+        panic!("Expected left brace to open if body.");
+    }
+
+    iterator.next();
+
+    while !token_is(iterator, Token::RBrace) {
+        instructions.push(parse_instruction(iterator));
+    }
+
+    if token_is(iterator, Token::RBrace) {
+        iterator.next();
+    }
+
+    ASTNode::new_for(declaration, condition, progression, instructions)
 }
 
 fn token_is<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>, token: Token) -> bool {
