@@ -281,8 +281,11 @@ fn parse_instruction<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> AST
     if token_is(iterator, Token::CreateInstructionKeyword) {
         return parse_create_instruction(iterator);
     }
+    else if token_is(iterator, Token::If) {
+        return parse_if(iterator);
+    }
 
-    parse_create_instruction(iterator)
+    panic!("Expected an instruction.");
 }
 
 fn parse_create_instruction<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
@@ -335,6 +338,34 @@ fn parse_value<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     }
 
     ASTNode::new_value(value)
+}
+
+fn parse_expression<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+    iterator.next();
+    ASTNode::new_expression(ASTNode::Value("".to_string()))
+}
+
+fn parse_if<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+    iterator.next();
+
+    let condition = parse_expression(iterator);
+    let mut instructions: Vec<ASTNode> = Vec::new();
+
+    if !token_is(iterator, Token::LBrace) {
+        panic!("Expected left brace to open if body.");
+    }
+
+    iterator.next();
+
+    while !token_is(iterator, Token::RBrace) {
+        instructions.push(parse_instruction(iterator));
+    }
+
+    if token_is(iterator, Token::RBrace) {
+        iterator.next();
+    }
+
+    ASTNode::new_if(condition, instructions)
 }
 
 fn token_is<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>, token: Token) -> bool {
