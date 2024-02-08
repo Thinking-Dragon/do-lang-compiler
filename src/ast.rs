@@ -13,6 +13,11 @@ pub enum ASTNode {
     Declaration(String, Box<ASTNode>),
     DataInstanciation(String, Vec<Box<ASTNode>>),
     CreateInstruction(String, Vec<Box<ASTNode>>),
+    Sum(Box<ASTNode>, Box<ASTNode>),
+    Substraction(Box<ASTNode>, Box<ASTNode>),
+    Multiplication(Box<ASTNode>, Box<ASTNode>),
+    Division(Box<ASTNode>, Box<ASTNode>),
+    Modulo(Box<ASTNode>, Box<ASTNode>),
     If(Box<ASTNode>, Vec<Box<ASTNode>>),
     For(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>, Vec<Box<ASTNode>>),
 }
@@ -40,6 +45,26 @@ impl ASTNode {
 
     pub fn new_create_instruction(groupe_name: String, parameter_values: Vec<ASTNode>) -> ASTNode {
         ASTNode::CreateInstruction(groupe_name, parameter_values.into_iter().map(Box::new).collect())
+    }
+
+    pub fn new_sum(lhs: ASTNode, rhs: ASTNode) -> ASTNode {
+        ASTNode::Sum(Box::new(lhs), Box::new(rhs))
+    }
+
+    pub fn new_substraction(lhs: ASTNode, rhs: ASTNode) -> ASTNode {
+        ASTNode::Substraction(Box::new(lhs), Box::new(rhs))
+    }
+
+    pub fn new_multiplication(lhs: ASTNode, rhs: ASTNode) -> ASTNode {
+        ASTNode::Multiplication(Box::new(lhs), Box::new(rhs))
+    }
+
+    pub fn new_division(lhs: ASTNode, rhs: ASTNode) -> ASTNode {
+        ASTNode::Division(Box::new(lhs), Box::new(rhs))
+    }
+
+    pub fn new_modulo(lhs: ASTNode, rhs: ASTNode) -> ASTNode {
+        ASTNode::Modulo(Box::new(lhs), Box::new(rhs))
     }
 
     pub fn new_parameter(name: String, parameter_type: String) -> ASTNode {

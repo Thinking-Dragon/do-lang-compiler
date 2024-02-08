@@ -347,8 +347,50 @@ fn parse_value<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
 }
 
 fn parse_expression<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
-    iterator.next();
-    ASTNode::new_expression(ASTNode::Value("".to_string()))
+    parse_add_sub_expression(iterator)
+}
+
+fn parse_add_sub_expression<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+    let mut lhs = parse_mul_div_mod_expression(iterator);
+
+    while let Some(token) = iterator.peek() {
+        match token {
+            Token::AddSign | Token::SubSign => {
+                let op = iterator.next().unwrap();
+                let rhs = parse_mul_div_mod_expression(iterator);
+                lhs = match op {
+                    Token::AddSign => ASTNode::new_sum(lhs, rhs),
+                    Token::SubSign => ASTNode::new_substraction(lhs, rhs),
+                    _ => unreachable!(),
+                };
+            }
+            _ => break,
+        }
+    }
+
+    lhs
+}
+
+fn parse_mul_div_mod_expression<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+    let mut lhs = parse_value(iterator);
+
+    while let Some(token) = iterator.peek() {
+        match token {
+            Token::MulSign | Token::DivSign | Token::ModSign => {
+                let op = iterator.next().unwrap();
+                let rhs = parse_value(iterator);
+                lhs = match op {
+                    Token::MulSign => ASTNode::new_multiplication(lhs, rhs),
+                    Token::DivSign => ASTNode::new_division(lhs, rhs),
+                    Token::ModSign => ASTNode::new_modulo(lhs, rhs),
+                    _ => unreachable!(),
+                };
+            }
+            _ => break,
+        }
+    }
+
+    lhs
 }
 
 fn parse_statement<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
