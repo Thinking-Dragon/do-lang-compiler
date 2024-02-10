@@ -284,6 +284,9 @@ fn parse_instruction<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> AST
     else if token_is(iterator, Token::If) {
         return parse_if(iterator);
     }
+    else if token_is(iterator, Token::Foreach) {
+        return parse_foreach(iterator);
+    }
     else if token_is(iterator, Token::For) {
         return parse_for(iterator);
     }
@@ -439,6 +442,54 @@ fn parse_if<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     }
 
     ASTNode::new_if(condition, instructions)
+}
+
+fn parse_foreach<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+    iterator.next();
+    
+    let mut values: Vec<String> = Vec::new();
+
+    if !token_is(iterator, Token::LParenthesis) {
+        panic!("Expected left parenthesis to open group parameters.");
+    }
+
+    iterator.next();
+
+    while !token_is(iterator, Token::In) {
+        if token_is(iterator, Token::Comma) {
+            iterator.next();
+        }
+
+        if is_symbol(&iterator.peek()) {
+            values.push(iterator.next().unwrap().get_value());
+        }
+        else {
+            panic!("Expected a value name in foreach.");
+        }
+    }
+
+    if token_is(iterator, Token::In) {
+        iterator.next();
+    }
+    else {
+        panic!("Expected keyword in between values and collections in foreach.");
+    }
+
+    let mut collections: Vec<ASTNode> = Vec::new();
+
+    while !token_is(iterator, Token::RParenthesis) {
+        if token_is(iterator, Token::Comma) {
+            iterator.next();
+        }
+
+        collections.push(parse_expression(iterator));
+    }
+
+    if token_is(iterator, Token::RParenthesis) {
+        iterator.next();
+    }
+
+    ASTNode::new_foreach(values, collections)
 }
 
 fn parse_for<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {

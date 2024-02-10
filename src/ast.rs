@@ -19,6 +19,7 @@ pub enum ASTNode {
     Division(Box<ASTNode>, Box<ASTNode>),
     Modulo(Box<ASTNode>, Box<ASTNode>),
     If(Box<ASTNode>, Vec<Box<ASTNode>>),
+    Foreach(Vec<String>, Vec<Box<ASTNode>>),
     For(Box<ASTNode>, Box<ASTNode>, Box<ASTNode>, Vec<Box<ASTNode>>),
 }
 
@@ -97,6 +98,10 @@ impl ASTNode {
 
     pub fn new_if(condition: ASTNode, instructions: Vec<ASTNode>) -> ASTNode {
         ASTNode::If(Box::new(condition), instructions.into_iter().map(Box::new).collect())
+    }
+
+    pub fn new_foreach(values: Vec<String>, collections: Vec<ASTNode>) -> ASTNode {
+        ASTNode::Foreach(values.clone(), collections.into_iter().map(Box::new).collect())
     }
 
     pub fn new_for(declaration: ASTNode, condition: ASTNode, progression: ASTNode, instructions: Vec<ASTNode>) -> ASTNode {

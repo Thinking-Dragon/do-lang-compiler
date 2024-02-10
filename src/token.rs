@@ -10,6 +10,7 @@ pub enum Token {
     RParenthesis,
     Colon,
     Semicolon,
+    In,
     DoubleQuote,
     SingleQuote,
     Equal,
@@ -27,6 +28,7 @@ pub enum Token {
     CreateInstructionKeyword,
     Let,
     If,
+    Foreach,
     For,
     Symbol(String),
 }
@@ -44,6 +46,7 @@ impl Token {
             Token::RParenthesis               => ")".to_string(),
             Token::Colon                      => ":".to_string(),
             Token::Semicolon                  => ";".to_string(),
+            Token::In                         => "in".to_string(),
             Token::DoubleQuote                => "\"".to_string(),
             Token::SingleQuote                => "'".to_string(),
             Token::Equal                      => "=".to_string(),
@@ -61,6 +64,7 @@ impl Token {
             Token::CreateInstructionKeyword   => "create".to_string(),
             Token::Let                        => "let".to_string(),
             Token::If                         => "if".to_string(),
+            Token::Foreach                    => "foreach".to_string(),
             Token::For                        => "for".to_string(),
             Token::Symbol(value)     => value.clone(),
         }
@@ -78,6 +82,7 @@ impl Token {
             Token::RParenthesis,
             Token::Colon,
             Token::Semicolon,
+            Token::In,
             Token::DoubleQuote,
             Token::SingleQuote,
             Token::Equal,
@@ -95,6 +100,7 @@ impl Token {
             Token::CreateInstructionKeyword,
             Token::Let,
             Token::If,
+            Token::Foreach,
             Token::For,
         ].to_vec()
     }
