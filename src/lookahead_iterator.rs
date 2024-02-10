@@ -11,6 +11,10 @@ impl<T: Clone> LookAheadIterator<T> {
         }
     }
 
+    pub fn peek(&mut self) -> Option<&T> {
+        self.lookahead(0)
+    }
+
     pub fn lookahead(&mut self, offset: usize) -> Option<&T> {
         match self.index + offset < self.data.len() {
             true  => Some(&self.data[self.index + offset]),
