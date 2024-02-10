@@ -1,14 +1,13 @@
-use std::iter::Peekable;
-
+use crate::lookahead_iterator::{LookAheadIterator, ToLookaheadIterator};
 use crate::token::Token;
 use crate::ast::ASTNode;
 
 pub fn parse_ast(tokens: Vec<Token>) -> ASTNode {
-    let mut iterator = tokens.into_iter().peekable();
+    let mut iterator = tokens.to_lookahead_iter();
     parse_program(&mut iterator)
 }
 
-fn parse_program<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_program(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     let mut statements = Vec::new();
 
     while iterator.peek().is_some() {
@@ -18,7 +17,7 @@ fn parse_program<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode
     ASTNode::new_program(statements)
 }
 
-fn parse_primitive_bloc<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_primitive_bloc(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     match iterator.next() {
         Some(Token::Data)  => parse_data(iterator),
         Some(Token::Group) => parse_group(iterator),
@@ -29,7 +28,7 @@ fn parse_primitive_bloc<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> 
     }
 }
 
-fn parse_data<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_data(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     if is_symbol(&iterator.peek()) {
         let name_token = iterator.next();
         let mut fields: Vec<ASTNode> = Vec::new();
@@ -59,7 +58,7 @@ fn parse_data<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     }
 }
 
-fn parse_group<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_group(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     if is_symbol(&iterator.peek()) {
         let name_token = iterator.next();
         let mut parameters: Vec<ASTNode> = Vec::new();
@@ -109,7 +108,7 @@ fn parse_group<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     }
 }
 
-fn parse_do<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_do(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     if is_symbol(&iterator.peek()) {
         let name_token = iterator.next();
         let mut instructions: Vec<ASTNode> = Vec::new();
@@ -135,7 +134,7 @@ fn parse_do<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     }
 }
 
-fn parse_run<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_run(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     let mut actions_to_do: Vec<String> = Vec::new();
 
     if !token_is(iterator, Token::LParenthesis) {
@@ -177,7 +176,7 @@ fn parse_run<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     ASTNode::new_run(actions_to_do, instructions)
 }
 
-fn parse_field<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {    
+fn parse_field(iterator: &mut LookAheadIterator<Token>) -> ASTNode {    
     if is_symbol(&iterator.peek()) {
         let name_token = iterator.next();
 
@@ -201,7 +200,7 @@ fn parse_field<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     }
 }
 
-fn parse_field_value<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_field_value(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     if is_symbol(&iterator.peek()) {
         let name_token = iterator.next();
         if token_is(iterator, Token::Equal) {
@@ -224,7 +223,7 @@ fn parse_field_value<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> AST
     }
 }
 
-fn parse_parameter<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_parameter(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     if is_symbol(&iterator.peek()) {
         let name_token = iterator.next();
         if token_is(iterator, Token::Colon) {
@@ -247,7 +246,7 @@ fn parse_parameter<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNo
     }
 }
 
-fn parse_data_instanciation<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_data_instanciation(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     if is_symbol(&iterator.peek()) {
         let name_token = iterator.next();
         let mut field_values: Vec<ASTNode> = Vec::new();
@@ -277,7 +276,7 @@ fn parse_data_instanciation<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>)
     }
 }
 
-fn parse_instruction<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_instruction(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     if token_is(iterator, Token::CreateInstructionKeyword) {
         return parse_create_instruction(iterator);
     }
@@ -297,7 +296,7 @@ fn parse_instruction<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> AST
     panic!("Expected an instruction.");
 }
 
-fn parse_create_instruction<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_create_instruction(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     iterator.next();
 
     if is_symbol(&iterator.peek()) {
@@ -330,7 +329,7 @@ fn parse_create_instruction<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>)
     }
 }
 
-fn parse_value<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_value(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     let mut value: String = "".to_string();
 
     if is_symbol(&iterator.peek()) {
@@ -349,11 +348,11 @@ fn parse_value<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     ASTNode::new_value(value)
 }
 
-fn parse_expression<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_expression(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     parse_add_sub_expression(iterator)
 }
 
-fn parse_add_sub_expression<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_add_sub_expression(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     let mut lhs = parse_mul_div_mod_expression(iterator);
 
     while let Some(token) = iterator.peek() {
@@ -374,7 +373,7 @@ fn parse_add_sub_expression<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>)
     lhs
 }
 
-fn parse_mul_div_mod_expression<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_mul_div_mod_expression(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     let mut lhs = parse_value(iterator);
 
     while let Some(token) = iterator.peek() {
@@ -396,12 +395,12 @@ fn parse_mul_div_mod_expression<I: Iterator<Item=Token>>(iterator: &mut Peekable
     lhs
 }
 
-fn parse_statement<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_statement(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     iterator.next();
     ASTNode::new_expression(ASTNode::Value("".to_string()))
 }
 
-fn parse_declaration<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_declaration(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     if token_is(iterator, Token::Let) {
         iterator.next();
     }
@@ -421,7 +420,7 @@ fn parse_declaration<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> AST
     ASTNode::new_declaration(variable_name, value)
 }
 
-fn parse_if<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_if(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     iterator.next();
 
     let condition = parse_expression(iterator);
@@ -444,7 +443,7 @@ fn parse_if<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     ASTNode::new_if(condition, instructions)
 }
 
-fn parse_foreach<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_foreach(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     iterator.next();
 
     let mut values: Vec<String> = Vec::new();
@@ -503,7 +502,7 @@ fn parse_foreach<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode
     ASTNode::new_foreach(values, collections, instructions)
 }
 
-fn parse_for<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
+fn parse_for(iterator: &mut LookAheadIterator<Token>) -> ASTNode {
     iterator.next();
 
     let declaration = parse_declaration(iterator);
@@ -545,7 +544,7 @@ fn parse_for<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     ASTNode::new_for(declaration, condition, progression, instructions)
 }
 
-fn token_is<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>, token: Token) -> bool {
+fn token_is(iterator: &mut LookAheadIterator<Token>, token: Token) -> bool {
     iterator.peek().is_some() && iterator.peek().unwrap() == &token
 }
 
