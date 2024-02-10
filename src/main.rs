@@ -1,3 +1,5 @@
+mod lookahead_iterator;
+
 mod token;
 mod tokenizer;
 
