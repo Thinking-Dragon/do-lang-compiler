@@ -32,3 +32,13 @@ impl<T: Clone> LookAheadIterator<T> {
         }
     }
 }
+
+pub trait ToLookaheadIterator<T: Clone> {
+    fn to_lookahead_iter(self) -> LookAheadIterator<T>;
+}
+
+impl<T: Clone> ToLookaheadIterator<T> for Vec<T> {
+    fn to_lookahead_iter(self) -> LookAheadIterator<T> {
+        LookAheadIterator::new(self)
+    }
+}
