@@ -446,14 +446,12 @@ fn parse_if<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
 
 fn parse_foreach<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     iterator.next();
-    
+
     let mut values: Vec<String> = Vec::new();
 
-    if !token_is(iterator, Token::LParenthesis) {
-        panic!("Expected left parenthesis to open group parameters.");
+    if !is_symbol(&iterator.peek()) {
+        panic!("Unexpected token in foreach: {}.", iterator.peek().unwrap().get_value());
     }
-
-    iterator.next();
 
     while !token_is(iterator, Token::In) {
         if token_is(iterator, Token::Comma) {
@@ -477,7 +475,7 @@ fn parse_foreach<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode
 
     let mut collections: Vec<ASTNode> = Vec::new();
 
-    while !token_is(iterator, Token::RParenthesis) {
+    while !token_is(iterator, Token::LBrace) {
         if token_is(iterator, Token::Comma) {
             iterator.next();
         }
@@ -485,11 +483,24 @@ fn parse_foreach<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode
         collections.push(parse_expression(iterator));
     }
 
-    if token_is(iterator, Token::RParenthesis) {
+    if token_is(iterator, Token::LBrace) {
+        iterator.next();
+    }
+    else {
+        panic!("Expected left brace to open foreach body.");
+    }
+
+    let mut instructions: Vec<ASTNode> = Vec::new();
+
+    while !token_is(iterator, Token::RBrace) {
+        instructions.push(parse_instruction(iterator));
+    }
+
+    if token_is(iterator, Token::RBrace) {
         iterator.next();
     }
 
-    ASTNode::new_foreach(values, collections)
+    ASTNode::new_foreach(values, collections, instructions)
 }
 
 fn parse_for<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
@@ -518,7 +529,7 @@ fn parse_for<I: Iterator<Item=Token>>(iterator: &mut Peekable<I>) -> ASTNode {
     let mut instructions: Vec<ASTNode> = Vec::new();
 
     if !token_is(iterator, Token::LBrace) {
-        panic!("Expected left brace to open if body.");
+        panic!("Expected left brace to open for body.");
     }
 
     iterator.next();
